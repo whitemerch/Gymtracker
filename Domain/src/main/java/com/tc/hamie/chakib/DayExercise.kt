@@ -11,10 +11,8 @@ data class DayExercise(
 
     @PrimaryKey(autoGenerate = false)
     @NonNull
-    @ColumnInfo(name = "Day")
     var day: String,
 
-    @ColumnInfo(name = "Exercises")
     var exercises: String,
 
 )

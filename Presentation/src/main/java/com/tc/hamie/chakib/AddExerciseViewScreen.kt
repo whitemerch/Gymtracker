@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.SortedMap
@@ -55,7 +57,7 @@ fun ListDisplayed(exercises: SortedMap<String, List<Exercise>>, onNextButtonClic
             CategoryUI(list.name)
         }
         items(list.items) { exercise ->
-            ItemUI(exercise, onNextButtonClicked)
+            ItemUI(exercise, onNextButtonClicked, param)
         }
     }
     }
@@ -91,9 +93,19 @@ private fun CategoryUI(text: String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ItemUI(exercise: Exercise, onNextButtonClicked: () -> Unit){
+private fun ItemUI(exercise: Exercise,
+                   onNextButtonClicked: () -> Unit,
+                   param: String,
+                   viewModel: AddExerciseViewModel = viewModel(factory = AppViewModelProvider.Factory)
+){
+    val coroutineScope = rememberCoroutineScope()
     Card(
-        onClick = onNextButtonClicked,
+        onClick = {
+            coroutineScope.launch {
+            viewModel.saveExercise(param, exercise.exerciseName)
+            onNextButtonClicked()
+        }
+                  },
        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         modifier = Modifier
             .fillMaxWidth()

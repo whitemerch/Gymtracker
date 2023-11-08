@@ -1,39 +1,17 @@
 package com.tc.hamie.chakib
 
-import androidx.lifecycle.MutableLiveData
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.Flow
 
-class ExerciseRepository(private val exerciseDao: DayExerciseDao) {
-    private val coroutineScope = CoroutineScope(Dispatchers.Main)
-    val foundExercise = MutableLiveData<DayExercise>()
+interface ExerciseRepository {
+    /**
+     * Insert item in the data source
+     */
+    suspend fun upsertDayExercise(exercise: DayExercise)
 
-    fun insertDayExercise(exercise: DayExercise) {
-        coroutineScope.launch(Dispatchers.IO) {
-            exerciseDao.insertDayExercise(exercise)
-        }
-    }
-
-    fun updateDayExercise(exercise: DayExercise) {
-        coroutineScope.launch(Dispatchers.IO) {
-            exerciseDao.updateDayExercise(exercise)
-        }
-    }
-
-    fun getExercisesByDay(day: String){
-        coroutineScope.launch(Dispatchers.Main) {
-            foundExercise.value = asyncFind(day).await()
-        }
-    }
-
-    private fun asyncFind(day: String): Deferred<DayExercise?> =
-        coroutineScope.async(Dispatchers.IO) {
-            return@async exerciseDao.getExercisesByDay(day)
-        }
+    /**
+     * Retrieve all the items from the the given data source.
+     */
+    fun getExercisesByDay(day: String): DayExercise
 
 }
-
 
