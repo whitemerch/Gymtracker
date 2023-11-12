@@ -11,7 +11,7 @@ interface ExerciseRepository {
     /**
      * Retrieve all the items from the the given data source.
      */
-    fun getExercisesByDay(day: String): DayExercise
+    fun getExercisesByDay(day: String): Flow<DayExercise?>
 
 }
 

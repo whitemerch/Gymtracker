@@ -6,6 +6,6 @@ class OfflineExerciseRepository (private val dayExerciseDao: DayExerciseDao) : E
 
     override suspend fun upsertDayExercise(exercise: DayExercise) = dayExerciseDao.upsertDayExercise(exercise)
 
-    override fun getExercisesByDay(day: String): DayExercise = dayExerciseDao.getExercisesByDay(day)
+    override fun getExercisesByDay(day: String): Flow<DayExercise?> = dayExerciseDao.getExercisesByDay(day)
 
 }

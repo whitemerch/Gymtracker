@@ -3,30 +3,32 @@ package com.tc.hamie.chakib
 import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.flow.firstOrNull
 
 class AddExerciseViewModel(private val exerciseRepository: ExerciseRepository) : ViewModel() {
     suspend fun saveExercise(day: String, exerciseName: String) {
-        //val exercise = exerciseRepository.getExercisesByDay(day)
-        //if (exercise == null){
-            val exerciseJson = """[{"exercise": "$exerciseName", "sets": []}]"""
-            val dayExercise = DayExercise(day, exerciseJson)
+        val exercise: DayExercise? = exerciseRepository.getExercisesByDay(day).firstOrNull()
+
+        if (exercise == null) {
+            // If there is no existing DayExercise for the given day, create a new one
+            val exerciseJson = """{"exercise": "$exerciseName", "sets": []}"""
+            val dayExercise = DayExercise(day, arrayOf(exerciseJson))
             exerciseRepository.upsertDayExercise(dayExercise)
-        //[{"exercise": "$exerciseName", "sets": []}] resultat
-        /*} else {
-            val existingExerciseJson = exercise.exercises
-            val existingExerciseList = mutableListOf<String>()
+        } else {
+            // If there is an existing DayExercise, update the exercises list if exerciseName is not already in the list
+            val existingList = exercise.exercises.toMutableList()
 
-            // Append the new exercise information to the list.
-            val newExercise = """{"exercise": "$exerciseName", "sets": []}"""
-            existingExerciseList.add(newExercise)
+            // Check if exerciseName is already in the list
+            if (!existingList.any { it.contains("\"exercise\": \"$exerciseName\"") }) {
+                val newExerciseJson = """{"exercise": "$exerciseName", "sets": []}"""
+                existingList.add(newExerciseJson)
 
-            // Convert the updated list back to a JSON string.
-            val updatedExerciseJson = Gson().toJson(existingExerciseList)
-
-            // Create a new DayExercise object with the updated JSON and upsert it.
-            val dayExercise = DayExercise(day, updatedExerciseJson)
-            exerciseRepository.upsertDayExercise(dayExercise)
-        }*/
+                val updatedDayExercise = DayExercise(day, existingList.toTypedArray())
+                exerciseRepository.upsertDayExercise(updatedDayExercise)
+            }
+            // else: exerciseName is already in the list, do nothing
+        }
     }
+
 }
 

@@ -11,6 +11,6 @@ interface DayExerciseDao {
     @Upsert
     suspend fun upsertDayExercise(exercise: DayExercise)
 
-    @Query("SELECT * FROM DayExercises WHERE Day = :day")
-    fun getExercisesByDay(day: String): DayExercise
+    @Query("SELECT * FROM DayExercises WHERE day = :day")
+    fun getExercisesByDay(day: String): Flow<DayExercise?>
 }

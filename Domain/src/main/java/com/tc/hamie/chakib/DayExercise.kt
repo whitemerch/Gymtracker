@@ -13,6 +13,6 @@ data class DayExercise(
     @NonNull
     var day: String,
 
-    var exercises: String,
+    var exercises: Array<String>
 
 )

@@ -52,4 +52,5 @@ dependencies {
     implementation("androidx.compose.runtime:runtime-livedata:1.2.1")
     implementation("androidx.room:room-ktx:2.5.0")
     kapt("androidx.room:room-compiler:2.5.0")
+    implementation("com.google.code.gson:gson:2.8.5")
 }
