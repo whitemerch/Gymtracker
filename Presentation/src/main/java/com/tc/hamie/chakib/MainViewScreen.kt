@@ -44,24 +44,24 @@ import android.widget.DatePicker
 import androidx.compose.foundation.Image
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import com.google.gson.Gson
 
 
 @Composable
-fun MainViewApp(modifier: Modifier = Modifier, onNextButtonClicked: (String) -> Unit) {
+fun MainViewApp(modifier: Modifier = Modifier,
+                addExerciseButton: (String) -> Unit,
+                exerciseDetailButton: (String) -> Unit) {
     var currentDate by rememberSaveable { mutableStateOf(LocalDate.now()) }
     Surface(color = Color(0xFFFFFFFF)) {
         Box(modifier.fillMaxSize()) {
@@ -115,12 +115,12 @@ fun MainViewApp(modifier: Modifier = Modifier, onNextButtonClicked: (String) -> 
                         )
                     }
                 }
-                ExercisesItems(currentDate.format(DateTimeFormatter.ofPattern("MMM dd")))
+                ExercisesItems(currentDate.format(DateTimeFormatter.ofPattern("MMM dd")), exerciseDetailButton)
             }
             // Add ExtendedFloatingActionButton
             ExtendedFloatingActionButton(
                 onClick = {
-                    onNextButtonClicked(currentDate.format(DateTimeFormatter.ofPattern("MMM dd")))
+                    addExerciseButton(currentDate.format(DateTimeFormatter.ofPattern("MMM dd")))
                           },
                 containerColor = Color(0xff75d4bf),
                 contentColor = Color.White,
@@ -182,6 +182,7 @@ fun Icon(minusClicked: () -> Unit, icon: ImageVector) {
 @Composable
 fun ExercisesItems(
     date: String,
+    exerciseDetailButton: (String) -> Unit,
     viewModel: MainViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     var exercisesList by remember { mutableStateOf<List<ExerciseElement>?>(null) }
@@ -197,14 +198,22 @@ fun ExercisesItems(
             .padding(10.dp)
     ) {
         items(exercisesList.orEmpty()) { exerciseElement ->
-            ExerciseRow(exerciseElement = exerciseElement)
+            ExerciseRow(exerciseElement = exerciseElement, exerciseDetailButton)
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ExerciseRow(exerciseElement: ExerciseElement) {
+private fun ExerciseRow(exerciseElement: ExerciseElement,
+                        exerciseDetailButton: (String) -> Unit,
+) {
     Card(
+        onClick = {
+            val gson = Gson()
+            val exerciseElementString = gson.toJson(exerciseElement)
+            exerciseDetailButton(exerciseElementString)
+        },
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         modifier = Modifier
             .fillMaxWidth()

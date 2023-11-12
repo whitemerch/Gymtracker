@@ -11,10 +11,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -55,9 +55,7 @@ fun GymTrackerAppBar(
 fun MyApp(
     navController: NavHostController = rememberNavController()
 ) {
-    // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
-    // Get the name of the current screen
     val currentScreen = backStackEntry?.destination?.route ?: "Day"
 
     Scaffold(
@@ -75,9 +73,12 @@ fun MyApp(
         ) {
             composable(route = "Day") {
                 MainViewApp(
-                    onNextButtonClicked = {
+                    addExerciseButton = {
                         navController.navigate("AddExercise/$it")
                     },
+                    exerciseDetailButton = {
+                        navController.navigate("ExerciseDetail/$it")
+                                           },
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -96,33 +97,20 @@ fun MyApp(
                     param = param
                 )
             }
+            composable(route = "ExerciseDetail/{my_param}",
+                arguments = listOf(
+                    navArgument("my_param") {
+                        type = NavType.StringType
+                    }
+                )
+            ) {
+                val exerciseElement = it.arguments?.getString("my_param") ?: ""
+                ExerciseDetailView (
+                    exerciseElement = exerciseElement
+                )
+            }
         }
     }
 }
 
 
-/*composable(route = CupcakeScreen.Pickup.name) {
-                SelectOptionScreen(
-                    subtotal = uiState.price,
-                    onNextButtonClicked = { navController.navigate(CupcakeScreen.Summary.name) },
-                    onCancelButtonClicked = {
-                        cancelOrderAndNavigateToStart(viewModel, navController)
-                    },
-                    options = uiState.pickupOptions,
-                    onSelectionChanged = { viewModel.setDate(it) },
-                    modifier = Modifier.fillMaxHeight()
-                )
-            }
-            composable(route = CupcakeScreen.Summary.name) {
-                val context = LocalContext.current
-                OrderSummaryScreen(
-                    orderUiState = uiState,
-                    onCancelButtonClicked = {
-                        cancelOrderAndNavigateToStart(viewModel, navController)
-                    },
-                    onSendButtonClicked = { subject: String, summary: String ->
-                        shareOrder(context, subject = subject, summary = summary)
-                    },
-                    modifier = Modifier.fillMaxHeight()
-                )
-            }*/
