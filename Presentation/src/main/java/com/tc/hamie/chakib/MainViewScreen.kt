@@ -54,6 +54,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -65,7 +66,9 @@ fun MainViewApp(modifier: Modifier = Modifier, onNextButtonClicked: (String) -> 
     Surface(color = Color(0xFFFFFFFF)) {
         Box(modifier.fillMaxSize()) {
             Column(
-                modifier.fillMaxSize().fillMaxWidth(),
+                modifier
+                    .fillMaxSize()
+                    .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Row(
@@ -94,7 +97,6 @@ fun MainViewApp(modifier: Modifier = Modifier, onNextButtonClicked: (String) -> 
                         currentDate = LocalDate.of(year, month + 1, day)
                     }, mYear, mMonth, mDay
                 )
-
                 ElevatedButton(
                     onClick = { mDatePickerDialog.show() },
                     colors = ButtonDefaults.buttonColors(Color(0xff75d4bf)),
@@ -113,6 +115,7 @@ fun MainViewApp(modifier: Modifier = Modifier, onNextButtonClicked: (String) -> 
                         )
                     }
                 }
+                ExercisesItems(currentDate.format(DateTimeFormatter.ofPattern("MMM dd")))
             }
             // Add ExtendedFloatingActionButton
             ExtendedFloatingActionButton(
@@ -142,7 +145,9 @@ fun CircleWithDate(currentDate: LocalDate) {
         modifier = Modifier.width(200.dp),
         contentAlignment = Alignment.Center
     ) {
-        Canvas(modifier = Modifier.fillMaxSize().padding(24.dp)) {
+        Canvas(modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp)) {
             val canvasWidth = size.width
             val canvasHeight = size.height
 
@@ -174,41 +179,46 @@ fun Icon(minusClicked: () -> Unit, icon: ImageVector) {
     }
 }
 
-/*
-
 @Composable
 fun ExercisesItems(
-    foundExercise: DayExercise?,
-    viewModel: MainViewModel
+    date: String,
+    viewModel: MainViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    var exercisesList by remember { mutableStateOf<List<ExerciseElement>?>(null) }
+
+    LaunchedEffect(date) {
+        val fetchedExercises = viewModel.getExercises(date)
+        exercisesList = fetchedExercises
+    }
+
     LazyColumn(
         Modifier
             .fillMaxWidth()
             .padding(10.dp)
     ) {
-        val list = foundExercise?.exercises?.split(",")
-        items(list.items) { exercise ->
-            exerciseRow(exercise)
+        items(exercisesList.orEmpty()) { exerciseElement ->
+            ExerciseRow(exerciseElement = exerciseElement)
         }
     }
-}*/
+}
 
 @Composable
-private fun exerciseRow(exercise: Exercise){
+private fun ExerciseRow(exerciseElement: ExerciseElement) {
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         modifier = Modifier
             .fillMaxWidth()
             .padding(5.dp)
-    )
-    {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically) {
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Image(
                 painter = painterResource(
-                    id = exercise.profileImage
+                    id = exerciseElement.profileImage
                 ),
                 contentDescription = null,
                 modifier = Modifier
@@ -220,10 +230,12 @@ private fun exerciseRow(exercise: Exercise){
             Column(
                 modifier = Modifier.padding(start = 16.dp)
             ) {
-                Text(text = exercise.exerciseName,
+                Text(
+                    text = exerciseElement.exercise,
                     fontWeight = FontWeight.Bold
                 )
             }
         }
     }
 }
+

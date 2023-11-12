@@ -104,7 +104,7 @@ private fun ItemUI(exercise: Exercise,
     Card(
         onClick = {
             coroutineScope.launch {
-            viewModel.saveExercise(param, exercise.exerciseName)
+            viewModel.saveExercise(param, exercise.exerciseName, exercise.profileImage)
             onNextButtonClicked()
         }
                   },
