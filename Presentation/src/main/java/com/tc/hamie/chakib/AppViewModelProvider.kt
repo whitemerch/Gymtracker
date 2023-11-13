@@ -17,6 +17,10 @@ object AppViewModelProvider {
         initializer {
             AddExerciseViewModel(exerciseApplication().container.exerciseRepository)
         }
+
+        initializer {
+            ExerciseDetailViewModel(exerciseApplication().container.exerciseRepository)
+        }
     }
 }
 

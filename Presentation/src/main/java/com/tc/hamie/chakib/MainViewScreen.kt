@@ -61,7 +61,8 @@ import com.google.gson.Gson
 @Composable
 fun MainViewApp(modifier: Modifier = Modifier,
                 addExerciseButton: (String) -> Unit,
-                exerciseDetailButton: (String) -> Unit) {
+                exerciseDetailButton: (String, String) -> Unit)
+{
     var currentDate by rememberSaveable { mutableStateOf(LocalDate.now()) }
     Surface(color = Color(0xFFFFFFFF)) {
         Box(modifier.fillMaxSize()) {
@@ -182,7 +183,7 @@ fun Icon(minusClicked: () -> Unit, icon: ImageVector) {
 @Composable
 fun ExercisesItems(
     date: String,
-    exerciseDetailButton: (String) -> Unit,
+    exerciseDetailButton: (String, String) -> Unit,
     viewModel: MainViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     var exercisesList by remember { mutableStateOf<List<ExerciseElement>?>(null) }
@@ -198,7 +199,7 @@ fun ExercisesItems(
             .padding(10.dp)
     ) {
         items(exercisesList.orEmpty()) { exerciseElement ->
-            ExerciseRow(exerciseElement = exerciseElement, exerciseDetailButton)
+            ExerciseRow(exerciseElement = exerciseElement, exerciseDetailButton, date)
         }
     }
 }
@@ -206,13 +207,14 @@ fun ExercisesItems(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ExerciseRow(exerciseElement: ExerciseElement,
-                        exerciseDetailButton: (String) -> Unit,
+                        exerciseDetailButton: (String, String) -> Unit,
+                        date: String
 ) {
     Card(
         onClick = {
             val gson = Gson()
             val exerciseElementString = gson.toJson(exerciseElement)
-            exerciseDetailButton(exerciseElementString)
+            exerciseDetailButton(exerciseElementString, date)
         },
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         modifier = Modifier

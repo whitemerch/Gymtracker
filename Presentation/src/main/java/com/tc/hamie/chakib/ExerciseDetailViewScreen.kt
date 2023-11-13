@@ -39,28 +39,42 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlin.collections.Set
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("SuspiciousIndentation")
 @Composable
-fun ExerciseDetailView(exerciseElement: String) {
+fun ExerciseDetailView(
+    exerciseElement: String,
+    date: String,
+    viewModel: ExerciseDetailViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) {
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     val gson = Gson()
-    val exerciseObject = gson.fromJson(exerciseElement, ExerciseElement::class.java)
-    Box(
-    modifier = Modifier
+    var exerciseObject by remember { mutableStateOf(gson.fromJson(exerciseElement, ExerciseElement::class.java)) }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        ExerciseCard(exerciseObject)
+        SetsItems(exerciseObject.sets)
+    }
+    Box(modifier = Modifier
         .fillMaxSize()
         .padding(16.dp)
     ) {
-        ExerciseCard(exerciseObject)
         ExtendedFloatingActionButton(
             onClick = {
                 showBottomSheet = true
@@ -75,8 +89,9 @@ fun ExerciseDetailView(exerciseElement: String) {
             },
             text = { Text(text = "Add Reps") },
             modifier = Modifier
-                .align(Alignment.BottomEnd)
                 .padding(16.dp)
+                .fillMaxWidth()
+                .align(Alignment.BottomEnd)
         )
         if (showBottomSheet) {
             ModalBottomSheet(
@@ -89,7 +104,10 @@ fun ExerciseDetailView(exerciseElement: String) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(color = Color.White, shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                        .background(
+                            color = Color.White,
+                            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                        )
                         .padding(16.dp),
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -134,7 +152,11 @@ fun ExerciseDetailView(exerciseElement: String) {
                         }
                         Button(onClick = {
                             // Use 'weight' and 'repetitions' as needed
-                            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            scope.launch {
+                                sheetState.hide()
+                                exerciseObject =
+                                    viewModel.addReps(exerciseObject, weight, repetitions, date)
+                            }.invokeOnCompletion {
                                 if (!sheetState.isVisible) {
                                     showBottomSheet = false
                                 }
@@ -146,7 +168,6 @@ fun ExerciseDetailView(exerciseElement: String) {
                 }
             }
         }
-
     }
 }
 
@@ -189,6 +210,38 @@ fun ExerciseCard(exerciseElement:ExerciseElement) {
 }
 
 @Composable
-fun SetsandRepsCard() {
+fun SetsItems(sets: List<Setstructure>) {
+    LazyColumn(
+        Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+            .height(500.dp)
+    ) {
+        items(sets) { set ->
+            SetItem(set = set)
+        }
+    }
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SetItem(set: Setstructure) {
+    Card(
+        onClick = {
+
+        },
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(5.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(text = "${set.repetitions} reps", fontWeight = FontWeight.Bold)
+            Text(text = "Weight: ${set.weight} kg", fontWeight = FontWeight.Normal)
+        }
+    }
 }

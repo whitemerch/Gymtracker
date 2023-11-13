@@ -76,10 +76,10 @@ fun MyApp(
                     addExerciseButton = {
                         navController.navigate("AddExercise/$it")
                     },
-                    exerciseDetailButton = {
-                        navController.navigate("ExerciseDetail/$it")
-                                           },
-                    modifier = Modifier.fillMaxSize()
+                    exerciseDetailButton = { param1, param2 ->
+                        navController.navigate("ExerciseDetail/$param1/$param2")
+                    },
+                            modifier = Modifier.fillMaxSize()
                 )
             }
             composable(route = "AddExercise/{my_param}",
@@ -97,16 +97,22 @@ fun MyApp(
                     param = param
                 )
             }
-            composable(route = "ExerciseDetail/{my_param}",
+            composable(route = "ExerciseDetail/{my_param}/{second_param}",
                 arguments = listOf(
                     navArgument("my_param") {
+                        type = NavType.StringType
+                    },
+                    navArgument("second_param") {
                         type = NavType.StringType
                     }
                 )
             ) {
                 val exerciseElement = it.arguments?.getString("my_param") ?: ""
+                val date = it.arguments?.getString("second_param") ?: ""
+
                 ExerciseDetailView (
-                    exerciseElement = exerciseElement
+                    exerciseElement = exerciseElement,
+                    date = date
                 )
             }
         }

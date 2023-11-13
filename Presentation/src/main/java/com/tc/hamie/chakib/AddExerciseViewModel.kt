@@ -1,8 +1,6 @@
 package com.tc.hamie.chakib
 
 import androidx.lifecycle.ViewModel
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.firstOrNull
 
 class AddExerciseViewModel(private val exerciseRepository: ExerciseRepository) : ViewModel() {
