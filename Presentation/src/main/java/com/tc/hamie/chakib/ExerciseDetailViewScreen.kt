@@ -39,15 +39,17 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlin.collections.Set
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,7 +71,59 @@ fun ExerciseDetailView(
             .padding(16.dp)
     ) {
         ExerciseCard(exerciseObject)
-        SetsItems(exerciseObject.sets)
+        val sets = exerciseObject.sets
+        LazyColumn(
+            Modifier
+                .fillMaxWidth()
+                .padding(10.dp)
+                .height(500.dp)
+        ) {
+            items(sets) { set ->
+                Card(
+                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp), // Add padding to separate rows
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            // Text
+                            Column {
+                                Text(text = "${set.repetitions} reps", fontWeight = FontWeight.Bold)
+                                Text(text = "Weight: ${set.weight} kg", fontWeight = FontWeight.Normal)
+                            }
+
+                            IconButton(
+                                onClick = {
+                                    scope.launch {
+                                        exerciseObject = viewModel.deleteRep(set, exerciseObject, date)
+                                    }
+                                },
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .background(Color.Transparent)
+                            ) {
+                                androidx.compose.material3.Icon(
+                                    imageVector = Icons.Filled.Delete,
+                                    contentDescription = "",
+                                    tint = Color(0xff000000)
+                                )
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
     }
     Box(modifier = Modifier
         .fillMaxSize()
@@ -209,39 +263,3 @@ fun ExerciseCard(exerciseElement:ExerciseElement) {
     }
 }
 
-@Composable
-fun SetsItems(sets: List<Setstructure>) {
-    LazyColumn(
-        Modifier
-            .fillMaxWidth()
-            .padding(10.dp)
-            .height(500.dp)
-    ) {
-        items(sets) { set ->
-            SetItem(set = set)
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SetItem(set: Setstructure) {
-    Card(
-        onClick = {
-
-        },
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(5.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(text = "${set.repetitions} reps", fontWeight = FontWeight.Bold)
-            Text(text = "Weight: ${set.weight} kg", fontWeight = FontWeight.Normal)
-        }
-    }
-}

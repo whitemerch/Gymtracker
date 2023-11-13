@@ -2,6 +2,6 @@ package com.tc.hamie.chakib
 
 data class ExerciseElement(
     val exercise: String,
-    val sets: List<Setstructure>,
+    var sets: MutableList<Setstructure>,
     val profileImage: Int
 )

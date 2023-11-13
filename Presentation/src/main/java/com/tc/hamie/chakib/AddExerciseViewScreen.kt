@@ -99,9 +99,9 @@ private fun ItemUI(exercise: Exercise,
     Card(
         onClick = {
             coroutineScope.launch {
-            viewModel.saveExercise(param, exercise.exerciseName, exercise.profileImage)
-            onNextButtonClicked()
-        }
+                viewModel.saveExercise(param, exercise.exerciseName, exercise.profileImage)
+                onNextButtonClicked()
+            }
                   },
        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         modifier = Modifier
