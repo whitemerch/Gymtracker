@@ -48,6 +48,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -65,6 +66,7 @@ fun ExerciseDetailView(
     val scope = rememberCoroutineScope()
     val gson = Gson()
     var exerciseObject by remember { mutableStateOf(gson.fromJson(exerciseElement, ExerciseElement::class.java)) }
+    var setBottomSheet by remember { mutableStateOf<Setstructure?>(null) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -80,6 +82,10 @@ fun ExerciseDetailView(
         ) {
             items(sets) { set ->
                 Card(
+                    onClick = {
+                        setBottomSheet = Setstructure(repetitions = set.repetitions, weight = set.weight)
+                        showBottomSheet = true
+                    },
                     elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -121,7 +127,6 @@ fun ExerciseDetailView(
                         }
                     }
                 }
-
             }
         }
     }
@@ -131,6 +136,7 @@ fun ExerciseDetailView(
     ) {
         ExtendedFloatingActionButton(
             onClick = {
+                setBottomSheet = null
                 showBottomSheet = true
             },
             containerColor = Color(0xff75d4bf),
@@ -165,58 +171,118 @@ fun ExerciseDetailView(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.Center
                 ) {
-                    // Weight Input
-                    var weight by remember { mutableIntStateOf(0) }
-                    OutlinedTextField(
-                        value = weight.toString(),
-                        onValueChange = { weight = it.toIntOrNull() ?: 0 },
-                        label = { Text("Weight") },
-                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp)
-                    )
 
-                    // Repetitions Input
-                    var repetitions by remember { mutableIntStateOf(0) }
-                    OutlinedTextField(
-                        value = repetitions.toString(),
-                        onValueChange = { repetitions = it.toIntOrNull() ?: 0 },
-                        label = { Text("Repetitions") },
-                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp)
-                    )
+                    if (setBottomSheet == null) {
+                        var weight by remember { mutableIntStateOf(0) }
+                        var repetitions by remember { mutableIntStateOf(0) }
 
-                    // Buttons
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Button(onClick = {
-                            scope.launch { sheetState.hide() }.invokeOnCompletion {
-                                if (!sheetState.isVisible) {
-                                    showBottomSheet = false
+                        OutlinedTextField(
+                            value = weight.toString(),
+                            onValueChange = { weight = it.toIntOrNull() ?: 0 },
+                            label = { Text("Weight") },
+                            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp)
+                        )
+
+                        OutlinedTextField(
+                            value = repetitions.toString(),
+                            onValueChange = { repetitions = it.toIntOrNull() ?: 0 },
+                            label = { Text("Repetitions") },
+                            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 16.dp)
+                        )
+
+                        // Buttons
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Button(onClick = {
+                                scope.launch { sheetState.hide() }.invokeOnCompletion {
+                                    if (!sheetState.isVisible) {
+                                        showBottomSheet = false
+                                    }
                                 }
+                            }) {
+                                Text("Cancel")
                             }
-                        }) {
-                            Text("Cancel")
+                            Button(onClick = {
+                                // Use 'weight' and 'repetitions' as needed
+                                scope.launch {
+                                    sheetState.hide()
+                                        exerciseObject =
+                                            viewModel.addReps(exerciseObject,
+                                                weight, repetitions, date)
+                                }.invokeOnCompletion {
+                                    if (!sheetState.isVisible) {
+                                        showBottomSheet = false
+                                    }
+                                }
+                            }) {
+                                Text("Confirm")
+                            }
                         }
-                        Button(onClick = {
-                            // Use 'weight' and 'repetitions' as needed
-                            scope.launch {
-                                sheetState.hide()
-                                exerciseObject =
-                                    viewModel.addReps(exerciseObject, weight, repetitions, date)
-                            }.invokeOnCompletion {
-                                if (!sheetState.isVisible) {
-                                    showBottomSheet = false
+                        // Not logical to do two branches but cant do composable since
+                        // I am modifying exerciseObject and when i change weight and repetitions
+                        // They become unchangeable in the text fields
+                    } else {
+                        var weight by remember { mutableIntStateOf(setBottomSheet!!.weight) }
+                        var repetitions by remember { mutableIntStateOf(setBottomSheet!!.repetitions) }
+
+                        OutlinedTextField(
+                            value = weight.toString(),
+                            onValueChange = { weight = it.toIntOrNull() ?: 0 },
+                            label = { Text("Weight") },
+                            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp)
+                        )
+
+                        OutlinedTextField(
+                            value = repetitions.toString(),
+                            onValueChange = { repetitions = it.toIntOrNull() ?: 0 },
+                            label = { Text("Repetitions") },
+                            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 16.dp)
+                        )
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Button(onClick = {
+                                scope.launch { sheetState.hide() }.invokeOnCompletion {
+                                    if (!sheetState.isVisible) {
+                                        showBottomSheet = false
+                                    }
                                 }
+                            }) {
+                                Text("Cancel")
                             }
-                        }) {
-                            Text("Confirm")
+                            Button(onClick = {
+                                // Use 'weight' and 'repetitions' as needed
+                                scope.launch {
+                                    sheetState.hide()
+                                        exerciseObject =
+                                            viewModel.modifyReps(exerciseObject,
+                                                setBottomSheet!!, weight, repetitions, date)
+                                }.invokeOnCompletion {
+                                    if (!sheetState.isVisible) {
+                                        showBottomSheet = false
+                                    }
+                                }
+                            }) {
+                                Text("Confirm")
+                            }
                         }
                     }
                 }
