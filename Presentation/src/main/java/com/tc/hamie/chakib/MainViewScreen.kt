@@ -122,7 +122,7 @@ fun MainViewApp(modifier: Modifier = Modifier,
             ExtendedFloatingActionButton(
                 onClick = {
                     addExerciseButton(currentDate.format(DateTimeFormatter.ofPattern("MMM dd")))
-                          },
+                },
                 containerColor = Color(0xff75d4bf),
                 contentColor = Color.White,
                 icon = { Icon(Icons.Filled.Add, "Extended floating action button.") },

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "690739857929",
+    "project_id": "gymtacker-94e59",
+    "storage_bucket": "gymtacker-94e59.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:690739857929:android:843ba78a218e6036df86d8",
+        "android_client_info": {
+          "package_name": "com.tc.hamie.chakib"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIAd4RaHtpx9e95oIxkF7dWQdQluX_Fzo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
