@@ -39,23 +39,7 @@ fun GymTrackerAppBar(
     modifier: Modifier = Modifier
 ) {
     TopAppBar(
-        title = {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Spacer(modifier = Modifier.weight(1f))
-                Image(
-                    painter = painterResource(id = R.drawable.gymtracker),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .clip(MaterialTheme.shapes.small)
-                )
-                Spacer(modifier = Modifier.weight(1f))
-            }
-        },
+        title = {},
         colors = TopAppBarDefaults.mediumTopAppBarColors(
             containerColor = Color(0xff75d4bf)
         ),
